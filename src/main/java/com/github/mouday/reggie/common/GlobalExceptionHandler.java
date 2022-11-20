@@ -26,6 +26,14 @@ public class GlobalExceptionHandler {
     public R<String> exceptionHandler(Exception e){
         log.error(e.getMessage());
 
-        return R.error(e.getMessage());
+        String message = e.getMessage();
+
+        if(message.contains("Duplicate entry")){
+            message = "数据已存在";
+        } else{
+            message = "未知错误";
+        }
+
+        return R.error(message);
     }
 }

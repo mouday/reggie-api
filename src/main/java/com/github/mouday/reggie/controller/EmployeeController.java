@@ -2,16 +2,15 @@ package com.github.mouday.reggie.controller;
 
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.mouday.reggie.common.R;
 import com.github.mouday.reggie.entity.Employee;
 import com.github.mouday.reggie.service.EmployeeService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.DigestUtils;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
@@ -39,7 +38,7 @@ public class EmployeeController {
         // 1、通过username查数据库
         LambdaQueryWrapper<Employee> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(Employee::getUsername, employee.getUsername());
-        Employee employeeRow = employeeService.getOne(queryWrapper);
+        Employee employeeRow = this.employeeService.getOne(queryWrapper);
 
         if (employeeRow == null) {
             return R.error("登录失败");
@@ -95,12 +94,84 @@ public class EmployeeController {
         employee.setUpdateTime(LocalDateTime.now());
 
         // 当前登录的用户ID
-        Long employeeId = (Long)request.getSession().getAttribute("employee");
+        Long employeeId = (Long) request.getSession().getAttribute("employee");
         employee.setCreateUser(employeeId);
         employee.setUpdateUser(employeeId);
 
-        employeeService.save(employee);
+        this.employeeService.save(employee);
 
         return R.success(null);
+    }
+
+
+    /**
+     * 分页查询员工信息
+     *
+     * @param page
+     * @param pageSize
+     * @param name
+     * @return
+     */
+    @GetMapping("/page")
+    public R<Page> getEmployeeList(int page, int pageSize, String name) {
+        log.info("page: {}, pageSize: {}, name: {}", page, pageSize, name);
+
+        // 条件构造器
+        LambdaQueryWrapper<Employee> queryWrapper = new LambdaQueryWrapper<>();
+
+        // 添加过滤条件
+        if (StringUtils.isNotEmpty(name)) {
+            queryWrapper.like(Employee::getName, name);
+        }
+
+        // 添加排序
+        queryWrapper.orderByDesc(Employee::getUpdateTime);
+
+        // 分页
+        Page pageInfo = new Page(page, pageSize);
+
+        // 执行查询
+        this.employeeService.page(pageInfo, queryWrapper);
+
+        return R.success(pageInfo);
+    }
+
+    /**
+     * 更新员工信息
+     *
+     * @return
+     */
+    @PutMapping
+    public R<String> updateEmployee(HttpServletRequest request, @RequestBody Employee employee) {
+        // log.info("id: {}, status: {}", employee.getId(), employee.getStatus());
+
+        // 当前登录用户
+        Long employeeId = (Long) request.getSession().getAttribute("employee");
+        employee.setUpdateUser(employeeId);
+
+        // 设置更新时间
+        employee.setUpdateTime(LocalDateTime.now());
+
+        this.employeeService.updateById(employee);
+        return R.success("更新成功");
+    }
+
+
+    /**
+     * 根据id查询员工信息
+     *
+     * @param id
+     * @return
+     */
+    @GetMapping("/{id}")
+    public R<Employee> getEmployeeById(@PathVariable Long id) {
+        Employee employee = this.employeeService.getById(id);
+
+        if (employee != null) {
+            return R.success(employee);
+        } else {
+            return R.error("数据不存在");
+        }
+
     }
 }
