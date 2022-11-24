@@ -152,6 +152,9 @@ public class EmployeeController {
         // 设置更新时间
         // employee.setUpdateTime(LocalDateTime.now());
 
+        long id = Thread.currentThread().getId();
+        log.info("Thread id: {}", id);
+
         this.employeeService.updateById(employee);
         return R.success("更新成功");
     }

@@ -1,6 +1,7 @@
 package com.github.mouday.reggie.filter;
 
 import com.alibaba.fastjson.JSON;
+import com.github.mouday.reggie.common.BaseContext;
 import com.github.mouday.reggie.common.R;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.AntPathMatcher;
@@ -31,6 +32,8 @@ public class LoginCheckFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
+        long id = Thread.currentThread().getId();
+        log.info("Thread id: {}", id);
 
         HttpServletRequest request = (HttpServletRequest) servletRequest;
         HttpServletResponse response = (HttpServletResponse) servletResponse;
@@ -49,6 +52,10 @@ public class LoginCheckFilter implements Filter {
 
         // 3、非白名单登录后放行
         if(request.getSession().getAttribute("employee") != null){
+            // 设置当前用户登录id
+            Long userId = (Long)request.getSession().getAttribute("employee");
+            BaseContext.setCurrentId(userId);
+
             filterChain.doFilter(request, response);
             return;
         }

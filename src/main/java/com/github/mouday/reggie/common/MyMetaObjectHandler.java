@@ -21,8 +21,8 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
     public void insertFill(MetaObject metaObject) {
         metaObject.setValue("createTime", LocalDateTime.now());
         metaObject.setValue("updateTime", LocalDateTime.now());
-        metaObject.setValue("createUser", new Long(1));
-        metaObject.setValue("updateUser", new Long(1));
+        metaObject.setValue("createUser", BaseContext.getCurrentId());
+        metaObject.setValue("updateUser", BaseContext.getCurrentId());
 
     }
 
@@ -32,7 +32,10 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
      */
     @Override
     public void updateFill(MetaObject metaObject) {
+        long id = Thread.currentThread().getId();
+        log.info("Thread id: {}", id);
+
         metaObject.setValue("updateTime", LocalDateTime.now());
-        metaObject.setValue("updateUser", new Long(1));
+        metaObject.setValue("updateUser", BaseContext.getCurrentId());
     }
 }
