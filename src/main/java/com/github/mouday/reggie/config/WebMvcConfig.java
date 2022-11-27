@@ -24,6 +24,10 @@ public class WebMvcConfig extends WebMvcConfigurationSupport {
 
         registry.addResourceHandler("/front/**")
                 .addResourceLocations("classpath:/front/");
+
+        // upload
+        registry.addResourceHandler("/upload/**")
+                .addResourceLocations("file:upload/");
     }
 
     /**

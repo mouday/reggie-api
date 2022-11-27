@@ -4,6 +4,7 @@ spring:
   application:
     # 应用名称
     name: reggie_take_out
+
   datasource:
     druid:
       driver-class-name: com.mysql.cj.jdbc.Driver
@@ -18,3 +19,9 @@ mybatis-plus:
   global-config:
     db-config:
       id-type: ASSIGN_ID
+
+application:
+  # 对外公开的文件夹
+  public-dirname: 'public'
+  # 上传文件的文件夹
+  upload-dirname: "upload"

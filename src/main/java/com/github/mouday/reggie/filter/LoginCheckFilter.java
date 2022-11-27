@@ -28,6 +28,9 @@ public class LoginCheckFilter implements Filter {
             "/employee/logout",
             "/backend/**",
             "/front/**",
+            "/upload/**",
+            "/common/upload",
+            "/common/download",
     };
 
     @Override
