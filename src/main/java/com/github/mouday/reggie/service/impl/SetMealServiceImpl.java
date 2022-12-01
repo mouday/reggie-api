@@ -2,6 +2,7 @@ package com.github.mouday.reggie.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.github.mouday.reggie.common.CustomException;
 import com.github.mouday.reggie.dto.SetmealDto;
 import com.github.mouday.reggie.entity.Setmeal;
 import com.github.mouday.reggie.entity.SetmealDish;
@@ -64,5 +65,45 @@ public class SetMealServiceImpl
 
         setmealDishService.saveBatch(list);
 
+    }
+
+    /**
+     * 删除套餐及其菜品
+     *
+     * @param ids
+     */
+    @Transactional
+    @Override
+    public void removeSetmealWithDish(List<Long> ids) {
+        // 查询套餐状态是否可以删除
+        if (this.hasActiveSetmeal(ids)) {
+            throw new CustomException("套餐正在售卖，不能删除");
+        }
+
+        // 先删除套餐
+        super.removeByIds(ids);
+
+        // 再删除关联菜品
+        // delete from setmeal_dish where setmeal_id in (?)
+        LambdaQueryWrapper<SetmealDish> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        lambdaQueryWrapper.in(SetmealDish::getSetmealId, ids);
+
+        setmealDishService.remove(lambdaQueryWrapper);
+
+    }
+
+    /**
+     * 检查是否有起售的套餐
+     *
+     * @param ids
+     */
+    @Override
+    public boolean hasActiveSetmeal(List<Long> ids) {
+        // select count(*) from setmeal where id in (?) and status = 1
+        LambdaQueryWrapper<Setmeal> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.in(Setmeal::getId, ids);
+        queryWrapper.eq(Setmeal::getStatus, 1);
+
+        return super.count(queryWrapper) > 0;
     }
 }
