@@ -8,6 +8,7 @@ import com.github.mouday.reggie.entity.DishFlavor;
 import com.github.mouday.reggie.mapper.DishMapper;
 import com.github.mouday.reggie.service.DishFlavorService;
 import com.github.mouday.reggie.service.DishService;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,6 +46,7 @@ public class DishServiceImpl
 
     /**
      * 保存菜品 和 对应的口味数据
+     *
      * @param dishDto
      * @return
      */
@@ -64,5 +66,57 @@ public class DishServiceImpl
         }).collect(Collectors.toList());
 
         dishFlavorService.saveBatch(list);
+    }
+
+    /**
+     * 获取菜品 和 对应的口味数据
+     *
+     * @param id Long
+     * @return
+     */
+    @Override
+    public DishDto getDishByIdWithDishFlavor(Long id) {
+        // 查询菜品信息
+        Dish dish = this.getById(id);
+
+        DishDto dishDto = new DishDto();
+        BeanUtils.copyProperties(dish, dishDto);
+
+        // 查询口味信息
+        LambdaQueryWrapper<DishFlavor> queryWrapper = new LambdaQueryWrapper<>();
+
+        queryWrapper.eq(DishFlavor::getDishId, dishDto.getId());
+
+        List<DishFlavor> list = dishFlavorService.list(queryWrapper);
+        dishDto.setFlavors(list);
+
+        return dishDto;
+    }
+
+    /**
+     * 更新菜品 和 对应的口味数据
+     * @param dishDto
+     */
+    @Override
+    @Transactional
+    public void updateDishWithDishFlavor(DishDto dishDto) {
+        // 更新菜品基本信息
+        this.updateById(dishDto);
+
+        // 清理对应的口味数据 delete
+        LambdaQueryWrapper<DishFlavor> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(DishFlavor::getDishId, dishDto.getId());
+        dishFlavorService.remove(queryWrapper);
+
+        // 更新对应的口味数据 insert
+        List<DishFlavor> dishFlavors = dishDto.getFlavors().stream().map(item -> {
+            item.setDishId(dishDto.getId());
+            return item;
+        }).collect(Collectors.toList());
+
+
+        dishFlavorService.saveBatch(dishFlavors);
+
+
     }
 }

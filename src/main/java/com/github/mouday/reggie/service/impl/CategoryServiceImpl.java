@@ -6,7 +6,7 @@ import com.github.mouday.reggie.entity.Category;
 import com.github.mouday.reggie.mapper.CategoryMapper;
 import com.github.mouday.reggie.service.CategoryService;
 import com.github.mouday.reggie.service.DishService;
-import com.github.mouday.reggie.service.SetMealService;
+import com.github.mouday.reggie.service.SetmealService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +19,7 @@ public class CategoryServiceImpl
     private DishService dishService;
 
     @Autowired
-    private SetMealService setMealService;
+    private SetmealService setMealService;
 
     /**
      * 移除分类

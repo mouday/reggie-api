@@ -58,7 +58,7 @@ public class DishController {
      * 菜品分页
      */
     @GetMapping("/page")
-    public R<Page> getDishList(int page, int pageSize, String name) {
+    public R<Page> getDishPage(int page, int pageSize, String name) {
 
         // 条件构造器
         LambdaQueryWrapper<Dish> queryWrapper = new LambdaQueryWrapper<>();
@@ -133,4 +133,56 @@ public class DishController {
         return R.success(dishDtoPageInfo);
     }
 
+    /**
+     * 根据id获取菜品
+     *
+     * @param id
+     * @return
+     */
+    @GetMapping("/{id}")
+    public R<DishDto> getDishById(@PathVariable long id) {
+        DishDto dishDto = dishService.getDishByIdWithDishFlavor(id);
+        return R.success(dishDto);
+    }
+
+    /**
+     * 更新菜品
+     *
+     * @param dishDto
+     * @return
+     */
+    @PutMapping
+    public R<String> updateDishById(@RequestBody DishDto dishDto) {
+
+        dishService.updateDishWithDishFlavor(dishDto);
+
+        return R.success("更新成功");
+    }
+
+    /**
+     * 根据分类查询菜品
+     *
+     * @param dish
+     * @return
+     */
+    @GetMapping("/list")
+    public R<List<Dish>> getDishList(Dish dish) {
+        LambdaQueryWrapper<Dish> queryWrapper = new LambdaQueryWrapper<>();
+
+        // 条件
+        if (dish.getCategoryId() != null) {
+            queryWrapper.eq(Dish::getCategoryId, dish.getCategoryId());
+        }
+
+        // 仅显示起售的菜品
+        queryWrapper.eq(Dish::getStatus, 1);
+
+        // 排序
+        queryWrapper.orderByAsc(Dish::getSort)
+                .orderByDesc(Dish::getUpdateTime);
+
+        List<Dish> list = dishService.list(queryWrapper);
+
+        return R.success(list);
+    }
 }
