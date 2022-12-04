@@ -31,6 +31,8 @@ public class LoginCheckFilter implements Filter {
             "/upload/**",
             "/common/upload",
             "/common/download",
+            "/user/login", // app登录
+            "/user/sendMsg", // app发送验证码
     };
 
     @Override
@@ -53,10 +55,20 @@ public class LoginCheckFilter implements Filter {
             return;
         }
 
-        // 3、非白名单登录后放行
+        // 3.1、PC端 非白名单登录后放行
         if(request.getSession().getAttribute("employee") != null){
             // 设置当前用户登录id
             Long userId = (Long)request.getSession().getAttribute("employee");
+            BaseContext.setCurrentId(userId);
+
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        // 3.2、移动端 非白名单登录后放行
+        if(request.getSession().getAttribute("user") != null){
+            // 设置当前用户登录id
+            Long userId = (Long)request.getSession().getAttribute("user");
             BaseContext.setCurrentId(userId);
 
             filterChain.doFilter(request, response);
@@ -80,7 +92,6 @@ public class LoginCheckFilter implements Filter {
             if (match) {
                 return true;
             }
-
         }
 
         return false;
