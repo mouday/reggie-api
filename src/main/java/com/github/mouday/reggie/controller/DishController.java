@@ -166,7 +166,7 @@ public class DishController {
      * @return
      */
     @GetMapping("/list")
-    public R<List<Dish>> getDishList(Dish dish) {
+    public R<List<DishDto>> getDishList(Dish dish) {
         LambdaQueryWrapper<Dish> queryWrapper = new LambdaQueryWrapper<>();
 
         // 条件
@@ -183,6 +183,8 @@ public class DishController {
 
         List<Dish> list = dishService.list(queryWrapper);
 
-        return R.success(list);
+        List<DishDto> dishDtolist = dishService.listWithFlavors(list);
+
+        return R.success(dishDtolist);
     }
 }

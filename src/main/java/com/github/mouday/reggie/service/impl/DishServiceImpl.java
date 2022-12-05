@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -116,7 +117,34 @@ public class DishServiceImpl
 
 
         dishFlavorService.saveBatch(dishFlavors);
+    }
 
+    /**
+     * 查询菜品和对应的口味
+     * @param list
+     * @return
+     */
+    @Override
+    public List<DishDto> listWithFlavors(List<Dish> list) {
+        // 获取id
+        List<Long> dishIds = list.stream().map(Dish::getId).collect(Collectors.toList());
 
+        // 查询关联数据
+        LambdaQueryWrapper<DishFlavor> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.in(DishFlavor::getDishId, dishIds);
+        List<DishFlavor> dishFlavors = dishFlavorService.list(queryWrapper);
+
+        // 分组
+        Map<Long, List<DishFlavor>> map = dishFlavors.stream().collect(Collectors.groupingBy(DishFlavor::getDishId));
+
+        // 数据转换
+        List<DishDto> dishDtoList = list.stream().map(item -> {
+            DishDto dishDto = new DishDto();
+            BeanUtils.copyProperties(item, dishDto);
+            dishDto.setFlavors(map.get(dishDto.getId()));
+            return dishDto;
+        }).collect(Collectors.toList());
+
+        return dishDtoList;
     }
 }

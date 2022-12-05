@@ -1,8 +1,11 @@
 package com.github.mouday.reggie.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.github.mouday.reggie.dto.DishDto;
 import com.github.mouday.reggie.entity.Dish;
+
+import java.util.List;
 
 public interface DishService extends IService<Dish> {
 
@@ -32,4 +35,11 @@ public interface DishService extends IService<Dish> {
      * @param dishDto
      */
     public void updateDishWithDishFlavor(DishDto dishDto);
+
+    /**
+     * 查询菜品和对应的口味
+     * @param list
+     * @return
+     */
+    public List<DishDto> listWithFlavors(List<Dish> list);
 }

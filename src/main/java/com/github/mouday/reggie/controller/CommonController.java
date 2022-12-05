@@ -21,13 +21,13 @@ import java.io.IOException;
 @Slf4j
 public class CommonController {
 
-    @Value("${application.public-dirname}")
-    private String publicDirname;
-
-
-    @Value("${application.upload-dirname}")
-    private String uploadDirname;
-
+    // @Value("${application.public-dirname}")
+    // private String publicDirname;
+    //
+    //
+    // @Value("${application.upload-dirname}")
+    // private String uploadDirname;
+    //
 
     /**
      * 文件上传
