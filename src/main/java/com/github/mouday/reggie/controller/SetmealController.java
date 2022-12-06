@@ -108,4 +108,33 @@ public class SetmealController {
         setmealService.removeSetmealWithDish(ids);
         return R.success("删除套餐成功");
     }
+
+    /**
+     * 获取套餐列表
+     * @return
+     */
+    @GetMapping("/list")
+    public R<List<Setmeal>> getSetmealList(Long categoryId, Integer status){
+        LambdaQueryWrapper<Setmeal> queryWrapper = new LambdaQueryWrapper<>();
+
+        // 条件
+        if(categoryId != null){
+            queryWrapper.eq(Setmeal::getCategoryId, categoryId);
+        }
+
+        if(status != null){
+            queryWrapper.eq(Setmeal::getStatus, status);
+        }
+
+        // 排序
+        queryWrapper.orderByDesc(Setmeal::getUpdateTime);
+
+        // 查询
+        List<Setmeal> list = setmealService.list(queryWrapper);
+
+        return R.success(list);
+
+    }
 }
+
+

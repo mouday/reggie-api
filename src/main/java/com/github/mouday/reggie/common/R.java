@@ -38,4 +38,13 @@ public class R<T> {
         return this;
     }
 
+    public Map<String, Object> toMap() {
+        Map<String, Object> map = new HashMap<>();
+        map.put("msg", this.msg);
+        map.put("code", this.code);
+        map.put("data", this.data);
+        map.put("map", this.map);
+        return map;
+    }
+
 }

@@ -19,11 +19,21 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
      */
     @Override
     public void insertFill(MetaObject metaObject) {
-        metaObject.setValue("createTime", LocalDateTime.now());
-        metaObject.setValue("updateTime", LocalDateTime.now());
-        metaObject.setValue("createUser", BaseContext.getCurrentId());
-        metaObject.setValue("updateUser", BaseContext.getCurrentId());
+        if(metaObject.hasSetter("createTime")){
+            metaObject.setValue("createTime", LocalDateTime.now());
+        }
 
+        if(metaObject.hasSetter("updateTime")){
+            metaObject.setValue("updateTime", LocalDateTime.now());
+        }
+
+        if(metaObject.hasSetter("createUser")){
+            metaObject.setValue("createUser", BaseContext.getCurrentUserId());
+        }
+
+        if(metaObject.hasSetter("updateUser")){
+            metaObject.setValue("updateUser", BaseContext.getCurrentUserId());
+        }
     }
 
     /**
@@ -35,7 +45,12 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
         long id = Thread.currentThread().getId();
         log.info("Thread id: {}", id);
 
-        metaObject.setValue("updateTime", LocalDateTime.now());
-        metaObject.setValue("updateUser", BaseContext.getCurrentId());
+        if(metaObject.hasSetter("createUser")){
+            metaObject.setValue("createUser", BaseContext.getCurrentUserId());
+        }
+
+        if(metaObject.hasSetter("updateUser")){
+            metaObject.setValue("updateUser", BaseContext.getCurrentUserId());
+        }
     }
 }

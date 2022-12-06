@@ -59,7 +59,7 @@ public class LoginCheckFilter implements Filter {
         if(request.getSession().getAttribute("employee") != null){
             // 设置当前用户登录id
             Long userId = (Long)request.getSession().getAttribute("employee");
-            BaseContext.setCurrentId(userId);
+            BaseContext.setCurrentUserId(userId);
 
             filterChain.doFilter(request, response);
             return;
@@ -69,7 +69,7 @@ public class LoginCheckFilter implements Filter {
         if(request.getSession().getAttribute("user") != null){
             // 设置当前用户登录id
             Long userId = (Long)request.getSession().getAttribute("user");
-            BaseContext.setCurrentId(userId);
+            BaseContext.setCurrentUserId(userId);
 
             filterChain.doFilter(request, response);
             return;
