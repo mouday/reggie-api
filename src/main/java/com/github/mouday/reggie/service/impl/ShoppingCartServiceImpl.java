@@ -7,6 +7,8 @@ import com.github.mouday.reggie.mapper.ShoppingCartMapper;
 import com.github.mouday.reggie.service.ShoppingCartService;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class ShoppingCartServiceImpl
         extends ServiceImpl<ShoppingCartMapper, ShoppingCart>
@@ -37,5 +39,30 @@ public class ShoppingCartServiceImpl
         }
 
         return super.getOne(queryWrapper);
+    }
+
+    /**
+     * 获取指定用户的购物车列表
+     * @param currentUserId
+     * @return
+     */
+    @Override
+    public List<ShoppingCart> getListByUserId(Long currentUserId) {
+        LambdaQueryWrapper<ShoppingCart> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(ShoppingCart::getUserId, currentUserId);
+
+        return super.list(queryWrapper);
+
+    }
+
+    /**
+     * 清空指定用户的购物车
+     * @param currentUserId
+     */
+    @Override
+    public void cleanByUserId(Long currentUserId) {
+        LambdaQueryWrapper<ShoppingCart> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(ShoppingCart::getUserId, currentUserId);
+        super.remove(queryWrapper);
     }
 }

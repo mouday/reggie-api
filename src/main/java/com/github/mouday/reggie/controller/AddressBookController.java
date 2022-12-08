@@ -37,18 +37,13 @@ public class AddressBookController {
     /**
      * 设置默认地址
      */
-    @PutMapping("default")
+    @PutMapping("/default")
     public R<AddressBook> setDefault(@RequestBody AddressBook addressBook) {
         log.info("addressBook:{}", addressBook);
-        LambdaUpdateWrapper<AddressBook> wrapper = new LambdaUpdateWrapper<>();
-        wrapper.eq(AddressBook::getUserId, BaseContext.getCurrentUserId());
-        wrapper.set(AddressBook::getIsDefault, 0);
-        //SQL:update address_book set is_default = 0 where user_id = ?
-        addressBookService.update(wrapper);
+        Long currentUserId = BaseContext.getCurrentUserId();
 
-        addressBook.setIsDefault(1);
-        //SQL:update address_book set is_default = 1 where id = ?
-        addressBookService.updateById(addressBook);
+        addressBookService.setDefaultAddressByUserId(currentUserId, addressBook.getId());
+
         return R.success(addressBook);
     }
 

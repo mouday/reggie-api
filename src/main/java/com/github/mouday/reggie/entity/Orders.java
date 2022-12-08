@@ -1,5 +1,7 @@
 package com.github.mouday.reggie.entity;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.TableField;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -30,11 +32,12 @@ public class Orders implements Serializable {
     private Long addressBookId;
 
 
-    //下单时间
+    // 下单时间
+    // 插入时填充字段
     private LocalDateTime orderTime;
 
-
-    //结账时间
+    // 结账时间
+    // 插入时填充字段
     private LocalDateTime checkoutTime;
 
 
