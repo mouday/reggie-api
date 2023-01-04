@@ -1,6 +1,7 @@
 package com.github.mouday.reggie.controller;
 
 
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.mouday.reggie.common.R;
@@ -15,11 +16,13 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -38,6 +41,10 @@ public class DishController {
 
     @Autowired
     private CategoryService categoryService;
+
+    @Autowired
+    private StringRedisTemplate redisTemplate;
+
 
     /**
      * 添加菜品
@@ -167,6 +174,18 @@ public class DishController {
      */
     @GetMapping("/list")
     public R<List<DishDto>> getDishList(Dish dish) {
+        List<DishDto> dishDtolist = null;
+
+        // 动态构造缓存的key
+        String key = "dish:" + dish.getCategoryId() + "_" + dish.getStatus();
+
+        // 1、查询数据的时候先尝试从redis中获取
+        String value = redisTemplate.opsForValue().get(key);
+        if (value != null) {
+            return R.success(JSON.parseArray(value, DishDto.class));
+        }
+
+
         LambdaQueryWrapper<Dish> queryWrapper = new LambdaQueryWrapper<>();
 
         // 条件
@@ -183,7 +202,10 @@ public class DishController {
 
         List<Dish> list = dishService.list(queryWrapper);
 
-        List<DishDto> dishDtolist = dishService.listWithFlavors(list);
+        dishDtolist = dishService.listWithFlavors(list);
+
+        // 2、获取失败再走数据库查询，查询结果缓存到redis中
+        redisTemplate.opsForValue().set(key, JSON.toJSONString(dishDtolist), 60, TimeUnit.MINUTES);
 
         return R.success(dishDtolist);
     }
