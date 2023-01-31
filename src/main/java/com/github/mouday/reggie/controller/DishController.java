@@ -163,6 +163,10 @@ public class DishController {
 
         dishService.updateDishWithDishFlavor(dishDto);
 
+        // 清除缓存
+        String key = "dish:" + dishDto.getCategoryId() + "_1";
+        redisTemplate.delete(key);
+
         return R.success("更新成功");
     }
 
