@@ -6,12 +6,47 @@ spring:
     #应用的名称，可选
     name: reggie_take_out
 
-  datasource:
-    druid:
-      driver-class-name: com.mysql.cj.jdbc.Driver
-      url: jdbc:mysql://localhost:3306/reggie?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true
-      username: root
-      password: 123456
+#  datasource:
+#    druid:
+#      driver-class-name: com.mysql.cj.jdbc.Driver
+#      url: jdbc:mysql://localhost:3306/reggie?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true
+#      username: root
+#      password: 123456
+  shardingsphere:
+    sharding:
+      default-data-source-name: master
+    props:
+      sql:
+        # 开启sql显示，默认false
+        show: true
+    datasource:
+      names: master,slave
+      # 主库
+      master:
+#        type: com.alibaba.druid.pool.DruiDataSource
+        type: com.zaxxer.hikari.HikariDataSource
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        jdbc-url: jdbc:mysql://localhost:3306/reggie?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true
+        username: root
+        password: 123456
+      # 从库
+      slave:
+        type: com.zaxxer.hikari.HikariDataSource
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        jdbc-url: jdbc:mysql://localhost:3306/reggie?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true
+        username: root
+        password: 123456
+
+    # 读写分离配置
+    masterslave:
+      # 从库负载均衡策略：轮询
+      load-balance-algorithm-type: round_robin
+      # 最终的数据源名称
+      name: dataSource
+      # 主库数据源名称
+      master-data-source-name: master
+      # 从库数据源名称，多个逗号分隔
+      slave-data-source-names: slave
 
   # redis相关配置
   redis:
@@ -25,6 +60,8 @@ spring:
     redis:
       # 缓存过期时间30min
       time-to-live: 1800000
+  main:
+    allow-bean-definition-overriding: true
 
 mybatis-plus:
   configuration:
